@@ -24,17 +24,31 @@ public class MatchWinnerServiceImpl implements MatchWinnerService {
         Match match = matchRepository.findById(dto.getMatchId())
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
 
-        MatchWinner winner = MatchWinner.builder()
+        if (matchWinnerRepository.findByMatchId(dto.getMatchId()) != null) {
+            throw new IllegalStateException("Result already exists for this match");
+        }
+
+        String winner;
+        if (dto.getPlayerOnePoints() > dto.getPlayerTwoPoints()) {
+            winner = match.getPlayerOne().getUsername();
+        } else if (dto.getPlayerTwoPoints() > dto.getPlayerOnePoints()) {
+            winner = match.getPlayerTwo().getUsername();
+        } else {
+            winner = "Draw";
+        }
+
+        MatchWinner result = MatchWinner.builder()
                 .match(match)
                 .playerOnePoints(dto.getPlayerOnePoints())
                 .playerTwoPoints(dto.getPlayerTwoPoints())
-                .winner(dto.getWinner())
+                .winner(winner)
                 .build();
 
-        winner = matchWinnerRepository.save(winner);
+        result = matchWinnerRepository.save(result);
 
-        return toResponse(winner);
+        return toResponse(result);
     }
+
 
     @Override
     public List<MatchWinnerResponseDto> getAll() {

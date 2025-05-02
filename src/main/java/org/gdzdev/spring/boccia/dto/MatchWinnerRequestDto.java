@@ -17,8 +17,5 @@ public class MatchWinnerRequestDto {
 
     @Min(value = 0)
     private int playerTwoPoints;
-
-    @NotBlank(message = "Winner name is required")
-    private String winner;
 }
 
